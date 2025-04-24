@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}Unemployment in {{ country }}{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Unemployment dashboard</h2>
+
+<!-- Search form -->
+<form method="post" class="row g-2 mb-4">
+  <div class="col-auto">
+    <input type="text" name="country" value="{{ country }}" class="form-control"
+           placeholder="Enter country e.g. Canada" required>
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-primary">Search</button>
+  </div>
+</form>
+
+{% if error %}
+  <div class="alert alert-warning">{{ error }}</div>
+{% else %}
+  <div class="my-4">
+    <h4>📈 Chart.js plot for {{ country }}</h4>
+    <canvas id="chart" width="600" height="400"></canvas>
+  </div>
+
+  <div class="my-4">
+    <h4>📊 Matplotlib plot</h4>
+    <img src="{{ img_uri }}" class="img-fluid rounded shadow">
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if not error %}
+<script>
+const chartYears  = {{ years|tojson }};
+const chartRates  = {{ rates|tojson }};
+
+new Chart(document.getElementById('chart'),{
+  type:'line',
+  data:{
+    labels:chartYears,
+    datasets:[{label:'Unemployment Rate (%)',
+               data:chartRates,fill:true,
+               borderColor:'rgb(75,192,192)',
+               backgroundColor:'rgba(75,192,192,.2)',tension:.3}]
+  },
+  options:{responsive:true,scales:{y:{beginAtZero:true}}}
+});
+</script>
+{% endif %}
+{% endblock %}
